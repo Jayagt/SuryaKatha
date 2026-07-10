@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuryaKatha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F6EFE3;
+    --ink:#241C15;
+    --ink-soft:#4A3E30;
+    --gold-line: rgba(232,163,61,0.55);
+    --stage:#1B1F3B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Karla',sans-serif;
+    color:var(--ivory);
+    background: radial-gradient(120% 140% at 50% -10%, var(--stage) 0%, #0c0d1f 65%);
+    min-height:100vh;
+    transition: background 1.4s ease;
+    overflow-x:hidden;
+  }
+  .display{font-family:'Marcellus',serif;}
+  .devanagari{font-family:'Noto Sans Devanagari',serif;}
+
+  /* ---------- Layout ---------- */
+  .stage{ max-width:640px; margin:0 auto; padding:10px 20px 100px; }
+  h1.chapter-title{ font-size:1.7rem; line-height:1.2; margin:0 0 18px; font-weight:400; }
+
+  .card{
+    background:var(--ivory); color:var(--ink); border-radius:4px;
+    padding:22px 22px 24px; margin:18px 0; box-shadow:0 18px 40px rgba(0,0,0,0.35);
+  }
+  .card p{ line-height:1.65; margin:0; font-size:1rem; }
+  .shloka{
+    margin:16px 0 0; padding:14px 16px; border-left:3px solid var(--stage);
+    background:rgba(27,31,59,0.05); font-size:1.05rem; line-height:1.9;
+  }
+  .shloka .translit{ font-style:italic; color:var(--ink-soft); font-size:0.9rem; margin-top:6px; display:block; }
+
+  /* ---------- Book page navigation ---------- */
+  .page-indicator{
+    text-align:center; font-size:0.72rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:rgba(246,239,227,0.5); margin:14px 0 0;
+  }
+  .nav-row{ display:flex; gap:10px; margin-top:22px; }
+  .nav-row-fixed{
+    position:fixed; left:0; right:0; bottom:0; z-index:15;
+    display:flex; gap:10px;
+    max-width:640px; margin:0 auto;
+    padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg, rgba(10,11,26,0.96) 55%, rgba(10,11,26,0.7) 85%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .nav-btn{
+    flex:1; padding:14px; border-radius:4px; border:1px solid rgba(246,239,227,0.3);
+    background:rgba(246,239,227,0.06); color:var(--ivory); font-family:'Marcellus',serif; font-size:0.98rem;
+    letter-spacing:0.02em; cursor:pointer; transition:opacity .2s, background .2s;
+  }
+  .nav-btn.primary{ background:var(--ivory); color:var(--ink); border:none; }
+  .nav-btn:disabled{ opacity:0.28; pointer-events:none; }
+  .nav-btn:active{ transform:scale(0.99); }
+
+  /* ---------- Quiz ---------- */
+  .quiz-block{ margin:8px 0 4px; }
+  .q-count{ font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(246,239,227,0.5); margin-bottom:6px; }
+  .q-text{ font-size:1.12rem; margin:0 0 14px; font-weight:600; }
+  .options{ display:flex; flex-direction:column; gap:10px; }
+  .opt{
+    text-align:left; padding:13px 16px; border-radius:4px; border:1px solid rgba(246,239,227,0.3);
+    background:rgba(246,239,227,0.06); color:var(--ivory); font-size:0.98rem; font-family:'Karla',sans-serif;
+    cursor:pointer; transition:background .2s, border-color .2s, transform .1s;
+  }
+  .opt:active{ transform:scale(0.99); }
+  .opt:disabled{ cursor:default; }
+  .opt.correct{ background:rgba(94,166,96,0.25); border-color:#5EA660; }
+  .opt.wrong{ background:rgba(196,80,60,0.25); border-color:#C4503C; }
+  .opt.reveal-correct{ border-color:#5EA660; box-shadow: inset 0 0 0 1px #5EA660; }
+  .explain{
+    margin-top:12px; font-size:0.9rem; line-height:1.5; color:rgba(246,239,227,0.85);
+    border-left:2px solid var(--gold-line); padding-left:12px;
+  }
+  .reward-wrap{ text-align:center; margin-top:16px; }
+  .reward-sun{ width:56px; height:56px; margin:0 auto; }
+  .reward-label{
+    font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(246,239,227,0.6); margin-top:6px;
+  }
+
+  /* ---------- Title screen ---------- */
+  .title-screen{
+    min-height:80vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+  }
+  .sun-hero{ width:180px; height:180px; margin-bottom:8px; }
+  .title-screen h1{ font-size:2.6rem; margin:0 0 24px; letter-spacing:0.02em; }
+  .intro-tap{
+    max-width:440px; padding:6px; background:none; border:none; cursor:pointer;
+    color:rgba(246,239,227,0.88); font-family:'Karla',sans-serif; font-size:1rem; line-height:1.65;
+  }
+  .intro-tap:active{ opacity:0.7; }
+  .intro-hint{
+    margin-top:18px; font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase;
+    color:rgba(246,239,227,0.4);
+  }
+
+  /* ---------- Index screen ---------- */
+  .index-header{ text-align:center; padding:14px 10px 4px; }
+  .index-header .sun-hero{ width:44px; height:44px; margin:0 auto 8px; }
+  .index-header h1{ font-size:1.15rem; margin:0 0 4px; letter-spacing:0.03em; }
+  .index-progress{ font-size:0.7rem; color:rgba(246,239,227,0.5); letter-spacing:0.05em; margin:0 0 16px; }
+  .index-complete-note{
+    max-width:420px; margin:0 auto 20px; font-size:0.85rem; line-height:1.6;
+    font-style:italic; font-weight:600;
+  }
+  .neon-blink{
+    animation: neonFlicker 2.6s infinite;
+  }
+  @keyframes neonFlicker{
+    0%, 18%, 22%, 62%, 66%, 100% {
+      color:#F6C77A;
+      text-shadow:0 0 3px rgba(246,199,122,0.5), 0 0 10px rgba(246,199,122,0.3);
+    }
+    20%, 64% { color:rgba(246,239,227,0.4); text-shadow:none; }
+    40%, 80% {
+      color:#F6EFE3;
+      text-shadow:0 0 4px rgba(246,239,227,0.4);
+    }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .neon-blink{ animation:none; color:#F6C77A; text-shadow:0 0 6px rgba(246,199,122,0.4); }
+  }
+
+  .index-grid{
+    display:grid; grid-template-columns:repeat(6, 1fr); gap:16px 8px;
+    margin:0 0 10px;
+  }
+  .index-cell{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    background:none; border:none; cursor:pointer; padding:4px 2px;
+    color:rgba(246,239,227,0.88); font-family:'Karla',sans-serif;
+  }
+  .index-cell:active{ opacity:0.7; }
+  .index-cell .cell-num{
+    font-family:'Marcellus',serif; font-size:0.8rem; color:rgba(246,239,227,0.5);
+  }
+  .index-cell.complete .cell-num{ color:var(--ivory); }
+  .index-cell .cell-title{ font-size:0.66rem; line-height:1.25; text-align:center; }
+  .index-cell .cell-check{ font-size:0.65rem; color:rgba(246,239,227,0.7); }
+
+  .reset-link{
+    display:block; text-align:center; margin-top:34px; font-size:0.78rem;
+    color:rgba(246,239,227,0.45); text-decoration:underline; cursor:pointer; background:none; border:none;
+    font-family:'Karla',sans-serif;
+  }
+
+  /* ---------- Inline confirm overlay (window.confirm is blocked in sandboxed previews) ---------- */
+  .confirm-overlay{
+    position:fixed; inset:0; background:rgba(10,11,26,0.7); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:24px;
+  }
+  .confirm-box{
+    background:var(--ivory); color:var(--ink); border-radius:6px; padding:22px;
+    max-width:340px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  }
+  .confirm-text{ margin:0 0 4px; font-size:0.98rem; line-height:1.5; }
+  .confirm-box .nav-row .nav-btn{ color:var(--ink); border-color:rgba(36,28,21,0.25); background:rgba(36,28,21,0.05); }
+  .confirm-box .nav-row .nav-btn.primary{ background:var(--ink); color:var(--ivory); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage"></div>
+
+<script>
+/* ============ CONTENT ============ */
+/* Chapter titles are taken verbatim from the section headings in the source document. */
+const CHAPTERS = [
+  {
+    id:0,
+    title:'Surya in the Scriptures',
+    body:[
+      "Surya is called the Pratyakṣa Bhagavān — the one form of God visible to everyone, every single day. Yet daily darshan breeds a strange forgetting: we tend to see the sun as fire and heat, rarely as the source of life, order, and vision that the Ṛṣis revered. His stories appear across the Mārkaṇḍeya Purāṇa, the Bhaviṣyottara Purāṇa, the Viṣṇu Purāṇa, the Matsya Purāṇa, the Rāmāyaṇa, and the Mahābhārata — invoked in the Gāyatrī mantra, honored in the Sandhyāvandanam, remembered in countless stotras.",
+      "A story from the Krishna Katha shows how this forgetting gets undone. In Dwaraka, Krishna's son Sambha — born of Jambavatī — grew vain about his own beauty. Sage Nārada warned him that his pride would catch up with him. It did: Sambha looked upon his own mothers with an impure thought while Krishna bathed with his wives, and Krishna cursed him with leprosy, a punishment meant to burn away pride rooted in the body.",
+      "Ashamed, Sambha begged for a path back. Krishna sent him to Nārada, who pointed him toward the healer of both body and spirit: Surya."
+    ],
+    questions:[
+      { q:"In which story does Sambha's episode appear?", options:["The Rāmāyaṇa","The Krishna Katha","The Matsya Purāṇa","The Mahābhārata"], correct:1, explain:"The episode is introduced as a striking story from the Krishna Katha." },
+      { q:"Who is Sambha's mother?", options:["Rukmiṇī","Satyabhāmā","Jambavatī","Yamunā"], correct:2, explain:"Sambha was born of Jambavatī, one of Krishna's eight principal wives." },
+      { q:"What curse did Krishna give Sambha?", options:["Blindness","Leprosy","Exile","Muteness"], correct:1, explain:"Krishna cursed Sambha with leprosy, meant to burn away pride rooted in the body." },
+      { q:"Which sage first warned Sambha about his pride?", options:["Agastya","Vaiśampāyana","Nārada","Vasiṣṭha"], correct:2, explain:"Nārada sensed Sambha's pride early and warned him it would catch up with him." },
+      { q:"In which daily mantra is Surya invoked?", options:["Mahāmṛtyuñjaya","Gāyatrī","Puruṣa Sūkta","Śānti Mantra"], correct:1, explain:"Surya is invoked in the Gāyatrī mantra and honored in the Sandhyāvandanam." }
+    ]
+  },
+  {
+    id:1,
+    title:'Health from Surya, Wealth from Agni, Knowledge from Īśvara, Liberation from Janārdana',
+    body:[
+      "Krishna sends Sambha toward Surya through a verse that still guides seekers today: each Devatā carries a dominant guṇa, or quality, and though all are capable of bestowing blessings, a seeker is best served approaching the Devatā most aligned with their aspiration.",
+      "Surya is the giver of life, vitality, and clarity — the light of health and dharma. That is why atonement for a curse on the body begins with turning to him."
+    ],
+    shloka:{
+      dev:"आरोग्यं भास्करादिच्छेद्धनमिच्छेद्धुताशनात्। ईश्वराज्ज्ञानमन्विच्छेन्मोक्षमिच्छेज्जनार्दनात्॥",
+      translit:"Seek health from Bhāskara (Surya), wealth from Agni, knowledge from Īśvara, and mokṣa from Janārdana."
+    },
+    questions:[
+      { q:"From whom should one seek wealth, per the verse?", options:["Surya","Agni","Īśvara","Janārdana"], correct:1, explain:"The verse assigns wealth to Agni." },
+      { q:"From whom should one seek mokṣa?", options:["Bhāskara","Agni","Janārdana","Īśvara"], correct:2, explain:"Mokṣa, liberation, is sought from Janārdana." },
+      { q:"From whom should one seek knowledge?", options:["Īśvara","Agni","Surya","Janārdana"], correct:0, explain:"Knowledge is assigned to Īśvara in the verse." },
+      { q:"From whom should one seek health?", options:["Agni","Janārdana","Bhāskara (Surya)","Īśvara"], correct:2, explain:"Health is sought from Bhāskara, another name for Surya." },
+      { q:"What does the passage say about the Devatās generally?", options:["They are identical in nature","Each carries a dominant quality, though all are interconnected","Only Surya can grant any boon","They are ranked by seniority"], correct:1, explain:"All Devatās are interconnected, but each possesses a dominant guṇa best suited to a particular aspiration." }
+    ]
+  },
+  {
+    id:2,
+    title:'Brahmā\u2019s Vision of the Light: From Darkness to Sṛṣṭi',
+    body:[
+      "At the beginning of creation, during the great pralaya, even Brahmā found himself surrounded by tamas, unable to create anything. In meditation, he heard a subtle vibration of sacred syllables emerging from within.",
+      "These were the sapta vyāhṛtis, the seven realms, rising from śabda brahman — sound itself: Om Bhūḥ, Om Bhuvaḥ, Om Svaḥ, Om Mahaḥ, Om Janaḥ, Om Tapaḥ, Om Satyam.",
+      "Focusing deeply, Brahmā perceived the source of that sound: Omkāra, the Primal Sound — beginningless and endless, subtle, the supreme form of Hari, Para Brahman itself. From that focus, darkness was dispelled and Brahmā beheld light everywhere — but he could not withstand the brilliance, so he prayed to Omkāra to condense into a gentler, sustaining form, a kānti-svarūpa."
+    ],
+    shloka:{
+      dev:"आद्यान्तं यत् परं, सूक्ष्मं हररूपं परं स्थितम् । ॐ इत्युक्तं मया विप्र, तत् परब्रह्म तत्वपुः ॥",
+      translit:"That which is beginningless and endless, subtle, the supreme form of Hari, is known as Om — that is Para Brahman itself."
+    },
+    questions:[
+      { q:"What surrounded Brahmā at the start of creation, leaving him unable to create?", options:["Tejas","Tamas","Rasa","Ākāśa"], correct:1, explain:"Brahmā was surrounded by tamas during the great pralaya." },
+      { q:"What are the seven sacred syllables Brahmā heard called, collectively?", options:["Sapta Ṛṣis","Sapta Vyāhṛtis","Sapta Lokas","Sapta Svara"], correct:1, explain:"They are the sapta vyāhṛtis, rising from śabda brahman." },
+      { q:"Which is the first of the seven vyāhṛtis?", options:["Om Svaḥ","Om Satyam","Om Bhūḥ","Om Mahaḥ"], correct:2, explain:"The sequence begins with Om Bhūḥ." },
+      { q:"What did Brahmā perceive as the source of the sacred sound?", options:["Omkāra","Agni","Sūrya Maṇḍala","Kāla"], correct:0, explain:"Following the sound to its source, Brahmā perceived Omkāra, the Primal Sound." },
+      { q:"Why did Brahmā ask Omkāra to soften into a gentler form?", options:["The sound was too loud","Its brilliance was unbearable","He wanted a form he could worship","Other gods requested it"], correct:1, explain:"The light that followed was too much even for Brahmā to bear, so he asked for a gentler, sustaining kānti-svarūpa." }
+    ]
+  },
+  {
+    id:3,
+    title:'From Omkāra to Ādityas: Manifestation through Aditi',
+    body:[
+      "From Brahmā's mind came Prajāpati, then Marīci, then Kaśyapa, who married two daughters of Dakṣa Prajāpati: Diti, mother of the Dānavas, and Aditi, mother of the Devatās.",
+      "As the balance of the worlds tilted toward darkness, with dānavic forces growing stronger, Aditi prayed earnestly to Omkāra for divine intervention. Her intense tapas bore fruit — twelve forms of Omkāra manifested in her garbha as the Dvādaśa Ādityas, each ruling a month: Indra (Śrāvaṇa), Dhātā (Chaitra), Parjanya (Phālguna), Pūṣā (Māgha), Tvaṣṭā (Āśvina), Aryamān (Vaiśākha), Bhaga (Pauṣa), Vivasvān (Bhādrapada), Viṣṇu in his Vāmana form (Kārtika), Aṃśu (Mārgaśīrṣa), Varuṇa (Āṣāḍha), and Mitra (Jyeṣṭha).",
+      "Together, these Twelve form the cosmic body of Surya — Omkāra made visible in time and space, sustaining creation through seasons, direction, food, water, fire, breath, and light. The Ṛṣis hint at a deep truth: that divine form of Surya is present in all, everywhere. The Ādityas sustain loka-samya, balance in the worlds — and to meditate upon Surya is to recognize that light exists within, just as Brahmā did in the darkness."
+    ],
+    questions:[
+      { q:"Which of Kaśyapa's wives is the mother of the Dānavas?", options:["Aditi","Sanjñā","Diti","Chhāyā"], correct:2, explain:"Diti mothered the Dānavas, while her sister-wife Aditi mothered the Devatās." },
+      { q:"How many forms of Omkāra manifested as the Ādityas?", options:["Seven","Nine","Ten","Twelve"], correct:3, explain:"Twelve forms of Omkāra manifested in Aditi's womb as the Dvādaśa Ādityas." },
+      { q:"Which Āditya takes the Vāmana form and is associated with Kārtika?", options:["Mitra","Indra","Viṣṇu","Bhaga"], correct:2, explain:"Viṣṇu, in his Vāmana avatāra, is linked to the month of Kārtika." },
+      { q:"Which Āditya is associated with Śrāvaṇa and represents strength and leadership?", options:["Indra","Varuṇa","Pūṣā","Aṃśu"], correct:0, explain:"Indra governs Śrāvaṇa and represents strength and leadership among the Devas." },
+      { q:"What term describes the balance the Ādityas sustain in the worlds?", options:["Sṛṣṭi-krama","Loka-samya","Dharma-cakra","Kāla-cakra"], correct:1, explain:"The Ādityas, born of Aditi, sustain loka-samya — balance in the worlds." }
+    ]
+  },
+  {
+    id:4,
+    title:'Surya \u2013 The Grihasta',
+    body:[
+      "Surya enters Gṛhasthāśrama, the householder stage, by marrying Sanjñā, daughter of the celestial architect Viśvakarmā. Though she honors her divine husband, Sanjñā finds it hard to endure his tejas, his intense radiance. She bears three children: Vaivasvata Manu, Yama, and Yamī, the river Yamunā.",
+      "Unable to bear Surya's searing brilliance, Sanjñā creates a shadow of herself — Chhāyā — and leaves her in her own place, while she journeys north to perform penance at Kāmākhyā, disguised as a mare. Surya, unaware of the switch, fathers more children with Chhāyā: Śani, who becomes the stern planet of karma and justice; Tāpatī, a radiant river goddess; and Sāvarṇi Manu, the future Manu of the eighth Manvantara.",
+      "Chhāyā's partiality becomes evident — Yama, hurt by her favoritism, raises his leg in anger to strike her, and she curses him: may his leg fall lifeless to the ground. Surya intervenes and softens the curse — flesh may fall and be eaten by worms, but the limb shall regenerate. In the chaos, the truth comes out: Chhāyā is not Sanjñā.",
+      "Surya, stricken, seeks out his wife. Viśvakarmā advises that his tejas must be lessened, and chisels away fifteen of Surya's sixteen parts of brilliance; from that radiance emerge the Sudarśana Chakra, Śiva's Triśūla, Muruga's Vel, and Kubera's Puṣpaka Vimāna. The Devas, unable to withstand Surya's intensity, come to him praying he restrain his radiance. Gentled at last, Surya — as a stallion — finally meets Sanjñā, now a mare, in the forest. Their union brings the twin Aśvinī Kumāras and Revanta, guardian of Surya's domain. Śani, though reunited with his family, always feels apart, knowing Sanjñā is not his birth mother."
+    ],
+    shloka:{
+      dev:"स्वस्थितेषु जगन्माता धर्मः वर्षा हिमाकरः । देवदेव दिवाकरः ॥",
+      translit:"When you are stable, O Sun, the world functions — dharma thrives, seasons arrive, coolness exists. You are the Deva of Devas, giver of the day."
+    },
+    questions:[
+      { q:"Who is Surya's wife, daughter of Viśvakarmā?", options:["Chhāyā","Aditi","Sanjñā","Tāpatī"], correct:2, explain:"Sanjñā, daughter of Viśvakarmā, becomes Surya's wife as he enters the householder stage." },
+      { q:"What shadow-self did Sanjñā create before leaving?", options:["Tāpatī","Chhāyā","Yamī","Sāvarṇi"], correct:1, explain:"Sanjñā fashioned Chhāyā to endure Surya's radiance in her place." },
+      { q:"Which child of Surya and Chhāyā becomes the stern planet of karma?", options:["Yama","Śani","Revanta","Manu"], correct:1, explain:"Śani, born of Surya and Chhāyā, becomes the planet of karma and justice." },
+      { q:"How many of his sixteen parts of brilliance did Viśvakarmā carve away from Surya?", options:["Ten","Twelve","Fifteen","Sixteen"], correct:2, explain:"Viśvakarmā chiseled away fifteen of Surya's sixteen parts of tejas." },
+      { q:"What are the twin children born when Surya, as a stallion, reunites with Sanjñā as a mare?", options:["Śani and Tāpatī","The Aśvinī Kumāras","Manu and Yamī","Revanta and Chhāyā"], correct:1, explain:"Their union brings the Aśvinī Kumāras, the twin divine physicians." }
+    ]
+  },
+  {
+    id:5,
+    title:'Surya as Gateway to the Divine',
+    body:[
+      "Surya is not only the pratyakṣa deva, the one deity we see, but also the gateway to all the other gods. In yajña, when offerings are made into Agni, they are not consumed by fire. Instead, their essence is carried through Agni to the Surya Maṇḍala, the solar gateway, and from there delivered to whichever deity the offering was intended for.",
+      "Each time the priest says \"Idam Na Mama\" — this is not mine — it marks a sacred surrender through the Āditya Maṇḍala, the divine conduit of cosmic communication."
+    ],
+    shloka:{
+      dev:"इदं सूर्याय । इदं न मम ॥",
+      translit:"This is offered to Surya. This is not mine."
+    },
+    questions:[
+      { q:"What does \"Idam Na Mama\" mean?", options:["This is mine","This is not mine","This is offered","This is eternal"], correct:1, explain:"\"Idam Na Mama\" means \"this is not mine,\" marking the surrender of an offering." },
+      { q:"Through what does a yajña offering travel to reach its intended deity?", options:["The Sūrya Maṇḍala","The Candra Maṇḍala","The Yama Loka","The Brahma Loka"], correct:0, explain:"Agni carries the essence of the offering through the Sūrya Maṇḍala to the intended deity." },
+      { q:"What role does Agni play in this description of yajña?", options:["Agni consumes the offering permanently","Agni carries the offering's essence onward, rather than consuming it","Agni blocks offerings from reaching Surya","Agni replaces Surya as the gateway"], correct:1, explain:"Agni does not consume the offering — it carries its essence onward to Surya." },
+      { q:"Beyond being the one visible deity, what is Surya also called here?", options:["The lord of destruction","The gateway to all the other gods","The keeper of Yama's records","The source of Chhāyā"], correct:1, explain:"Surya is described as the gateway to all the other gods, not just the pratyakṣa deva." },
+      { q:"What is the Āditya Maṇḍala described as?", options:["A physical temple","The divine conduit of cosmic communication","A weapon of Viṣṇu","A lunar mansion"], correct:1, explain:"The Āditya Maṇḍala is the divine conduit through which offerings are carried." }
+    ]
+  },
+  {
+    id:6,
+    title:'Aditya: Space and Time',
+    body:[
+      "Surya is the very foundation upon which space and time become measurable. It is light that reveals direction: the direction in which the sun rises is known as East, Pūrva, and every other direction is named relative to it.",
+      "Time, too, flows from Surya. Even in darkness, time is measured — by the blink of an eye, a Nimeṣa. From this tiniest unit a whole cosmic calendar builds: 15 Nimeṣas make one Kāṣṭhā; 30 Kāṣṭhās make one Kālā; 20 Kālās make one Muhūrta, roughly 48 minutes; 30 Muhūrtas make one Ahorātra, a full day and night; 15 Ahorātras make one Pakṣa, a fortnight; 2 Pakṣas make one Māsa, a month; 6 Māsas make one Ayana, a half-year; and 2 Ayanas make one Saṃvatsara, a year. The twelve months are governed by the twelve Ādityas.",
+      "Among the five elements, Surya governs Tejas, radiant energy, and in the human body resides in the eyes — \"Ādityaḥ cakṣuḥ,\" the sun is the eye of all beings. Yama, born of Surya, governs lifetime rather than cosmic time, measuring existence not in years but in breaths and sunrises; every sunrise brings the soul one step closer to its next journey."
+    ],
+    questions:[
+      { q:"What is the smallest unit of time described, based on the blink of an eye?", options:["Kāṣṭhā","Kālā","Nimeṣa","Muhūrta"], correct:2, explain:"A Nimeṣa, the blink of an eye, is the smallest unit from which the whole calendar builds." },
+      { q:"How many Nimeṣas make one Kāṣṭhā?", options:["10","15","20","30"], correct:1, explain:"15 Nimeṣas make one Kāṣṭhā." },
+      { q:"Roughly how long is one Muhūrta?", options:["About 20 minutes","About 48 minutes","About 1 hour","About 2 hours"], correct:1, explain:"One Muhūrta is roughly 48 minutes, made of 20 Kālās." },
+      { q:"Which direction is defined by where the sun rises?", options:["North","South","East (Pūrva)","West"], correct:2, explain:"The direction of sunrise is East, Pūrva, and all other directions are named relative to it." },
+      { q:"According to the Upaniṣads, what is the sun called in relation to the eye?", options:["Ādityaḥ cakṣuḥ, the eye of all beings","Sūrya netra, the third eye","Cakṣu devatā, the god of sight","Ravi dṛṣṭi, the sun's gaze"], correct:0, explain:"The Upaniṣads describe the sun as Ādityaḥ cakṣuḥ — the eye of all beings." }
+    ]
+  },
+  {
+    id:7,
+    title:'Surya and Yajña: The Divine Transporter',
+    body:[
+      "Surya is the only celestial being who shines with his own intrinsic light, his svabhāva jyoti. All others — Chandra, the planets, the stars — glow only by reflecting his brilliance. Chandra becomes the intermediary of rasa, receiving Surya's light in varying degrees across fifteen days; on Pūrṇimā, the full moon, Chandra reflects that light completely, and the divine essence is transferred to all beings — plants, waters, minds.",
+      "From the next day, as the waning Kṛṣṇa Pakṣa begins, one Devatā each night arrives to receive a portion of that stored amṛita as āhāra, nourishment: first Agni, then Ravi (Surya) himself, then the Viśve Devās, Prajāpati, Varuṇa, Indra, the Ṛṣis, the Aṣṭa Vasus, Yama, the Marut Gaṇas, Rudra, Viṣṇu, Kubera, Paśupati (Śiva), and finally, on Amāvasyā, the Pitṛ Devatās.",
+      "On Amāvasyā, Chandra is fully depleted and dissolves into the vegetation of the earth. A special ray called Amakiraṇa descends, and Chandra is said to reside within it — hence Amāvasyā, from Ama (no) and Vasya (residue or brightness), marks not the moon's absence but its merging into nature's light.",
+      "The cycle of nourishment continues: cattle graze the grasses infused with Chandra's dissolved amṛita and produce milk; that milk is churned into ghee; the ghee is offered into Agni during yajñas; and through that offering, the essence is again carried by Agni through the Sūrya Maṇḍala back to Chandra, who begins waxing anew. \"Idam Sūryāya, idam na mama\" — this eternal movement from Surya to Chandra to Earth to beings to fire and back to Surya is the wheel of life and light that sustains the cosmos."
+    ],
+    questions:[
+      { q:"Which celestial body shines with its own intrinsic light, unlike the Moon or stars?", options:["Śani","Candra","Surya","Bṛhaspati"], correct:2, explain:"Surya alone shines with his own svabhāva jyoti; all others reflect his brilliance." },
+      { q:"On which day is Chandra's stored light fully depleted?", options:["Pūrṇimā","Aṣṭamī","Ekādaśī","Amāvasyā"], correct:3, explain:"On Amāvasyā, Chandra is fully depleted and dissolves into the earth's vegetation." },
+      { q:"Which Devatā receives Chandra's amṛita on the very first night after Pūrṇimā?", options:["Indra","Agni","Yama","Varuṇa"], correct:1, explain:"Agni is first in the fifteen-day sequence, taking the essence of fire and purification." },
+      { q:"What does cattle's milk eventually become, in this cycle?", options:["Curd offered to Chandra directly","Ghee, later offered into Agni","Amṛita consumed by Pitṛs","Soma poured on the earth"], correct:1, explain:"Milk from cattle grazing on Chandra-infused grass is churned into ghee, then offered into Agni." },
+      { q:"What is the special ray called that descends on Amāvasyā, in which Chandra is said to reside?", options:["Amakiraṇa","Sūrya-kiraṇa","Candra-rasa","Tejo-raśmi"], correct:0, explain:"On Amāvasyā, the ray called Amakiraṇa descends, and Chandra is said to reside within it." }
+    ]
+  },
+  {
+    id:8,
+    title:'Hanuman and Surya \u2013 A Leap Towards Light',
+    body:[
+      "As a child, Hanuman, the radiant son of Vāyu, once mistook the glowing Surya in the sky for a ripe fruit and leapt up to devour him. Indra, fearing chaos, struck Hanuman with his Vajra; the blow hit his jaw, hanu, and he fell to earth. Vāyu, enraged, withdrew air from all beings, threatening universal suffocation — until the gods, realizing Hanuman's divinity, blessed him with boons, and Surya promised to one day teach him Ved Vidyā.",
+      "Years later, Hanuman approached Surya: \"You are the one who sees all. I seek to learn all Vidyā from you.\" Surya replied, \"I cannot stay still — I am ever moving. How will you learn?\" Hanuman answered, \"Then I shall keep facing you always. As you move, I will too.\" And so, from sunrise to sunset, he followed Surya's chariot, learning all the Vedas and their secrets.",
+      "As a culmination of this learning, Hanuman is said to marry Suvarchalā, daughter of Surya — not a mortal wife, but the embodiment of the wisdom he received. \"Varchas\" means brilliance; \"Suvarchas,\" noble, internalized brilliance born not of ego but of true Vidyā. To marry Suvarchalā is symbolic: Hanuman becomes one with that knowledge, remaining a brahmachārī not by abstinence alone, but by being ever-dissolved in Brahman — a living form of Vidyā and Dharma."
+    ],
+    questions:[
+      { q:"What did the young Hanuman mistake Surya for?", options:["A jewel","A ripe fruit","A fire","A star"], correct:1, explain:"Hanuman mistook the glowing Surya for a ripe fruit and leapt to devour him." },
+      { q:"Whose weapon struck Hanuman's jaw and caused him to fall?", options:["Śiva's Triśūla","Indra's Vajra","Viṣṇu's Sudarśana Chakra","Kubera's Puṣpaka Vimāna"], correct:1, explain:"Indra struck Hanuman with his Vajra, hitting his jaw (hanu)." },
+      { q:"How did Hanuman promise to keep learning from the ever-moving Surya?", options:["By meditating motionless","By always facing him as he moves","By asking Indra for help","By waiting until nightfall"], correct:1, explain:"Hanuman said he would keep facing Surya always, moving as Surya moves." },
+      { q:"Who is Suvarchalā, said to marry Hanuman?", options:["A river goddess","Surya's daughter, embodying internalized wisdom","Vāyu's sister","A disguised Chhāyā"], correct:1, explain:"Suvarchalā is Surya's daughter, not a mortal wife but a symbol of the wisdom Hanuman received." },
+      { q:"What does the name \"Suvarchas\" mean?", options:["Fierce radiance","Noble, internalized brilliance","Golden dawn","Shadow of karma"], correct:1, explain:"\"Suvarchas\" means noble, internalized brilliance — wisdom born of true Vidyā, not ego." }
+    ]
+  },
+  {
+    id:9,
+    title:'The Power of Usha Kiran \u2013 Dawn of Inner Awakening',
+    body:[
+      "The first rays of Surya — Uṣā Kiraṇa — carry deep spiritual potency. They are not just light, but the ignition of consciousness. Sādhanā done at this hour burns inner darkness, laziness, and tamas.",
+      "Surya appears each morning with three aspects: Uṣā, the golden dawn, herald of awakening; Chhāyā, the shadow of karma, inviting reflection; and Padminī, the blossoming light of wisdom. These rays do not just illuminate the world — they awaken the heart, coming not only to burn away sins, pāpa karma, but to bloom divine potential within."
+    ],
+    questions:[
+      { q:"What are the first rays of the rising sun called?", options:["Uṣā Kiraṇa","Amakiraṇa","Tejo Raśmi","Sūrya Netra"], correct:0, explain:"Uṣā Kiraṇa refers to the first rays of Surya, carrying deep spiritual potency." },
+      { q:"Which of the three morning aspects represents \"the shadow of karma, inviting reflection\"?", options:["Uṣā","Chhāyā","Padminī","Tejas"], correct:1, explain:"Chhāyā, in this context, represents the shadow of karma inviting reflection." },
+      { q:"Which aspect is described as \"the blossoming light of wisdom\"?", options:["Padminī","Uṣā","Chhāyā","Amṛita"], correct:0, explain:"Padminī is the blossoming light of wisdom among Surya's three morning aspects." },
+      { q:"According to the passage, what does sādhanā at dawn burn away?", options:["Only physical illness","Inner darkness, laziness, and tamas","Karmic debt to ancestors","The shadow Chhāyā"], correct:1, explain:"Sādhanā at the hour of dawn burns inner darkness, laziness, and tamas." },
+      { q:"Besides burning away sin, what else does Surya's dawn light do?", options:["It hides divine potential","It blooms divine potential within","It weakens the will","It causes forgetting"], correct:1, explain:"Surya's rays come not only to burn pāpa karma but also to bloom divine potential within." }
+    ]
+  },
+  {
+    id:10,
+    title:'Y\u0101j\u00f1avalkya and the Grace of Surya \u2013 Birth of Two Yajur Vedas',
+    body:[
+      "At Vaiśampāyana's āśrama, during a great gathering of ṛṣis, Vaiśampāyana grew angry with his student Yājñavalkya over perceived arrogance and cursed him: \"May all the Vedic knowledge I taught you leave you.\" Yājñavalkya vomited out all the Vedas he had learned; the expelled knowledge appeared as a dark mass, and the ṛṣis, transformed into Tittiri birds, pecked at it and compiled it. This became the Kṛṣṇa Yajur Veda, whose spiritual culmination is the Taittirīya Upaniṣad.",
+      "Undeterred, Yājñavalkya did tapas to Surya, seeking divine wisdom directly from the Jñānasvarūpa. Surya appeared and blessed him with new light, giving him the Śukla Yajur Veda — a purer, more radiant expression of Truth, drawn directly from the Sun. Even when all seems lost, Surya's grace brings fresh, divine knowledge to one who turns to him with sincerity."
+    ],
+    questions:[
+      { q:"Who cursed Yājñavalkya, causing him to lose his Vedic knowledge?", options:["Agastya","Vaiśampāyana","Nārada","Viśvakarmā"], correct:1, explain:"Vaiśampāyana, angered by perceived arrogance, cursed Yājñavalkya to lose all he had taught him." },
+      { q:"What did the sages transform into, in order to compile the expelled knowledge?", options:["Tittiri birds","Swans","Peacocks","Deer"], correct:0, explain:"The ṛṣis transformed into Tittiri birds and pecked at the dark mass to compile it." },
+      { q:"Which Veda emerged from that compiled, expelled knowledge?", options:["Ṛg Veda","Sāma Veda","Kṛṣṇa Yajur Veda","Śukla Yajur Veda"], correct:2, explain:"The compiled expelled knowledge became the Kṛṣṇa Yajur Veda." },
+      { q:"Which Upaniṣad is the spiritual culmination of the Kṛṣṇa Yajur Veda?", options:["Taittirīya Upaniṣad","Īśa Upaniṣad","Kaṭha Upaniṣad","Muṇḍaka Upaniṣad"], correct:0, explain:"The Taittirīya Upaniṣad is described as the spiritual culmination of the Kṛṣṇa Yajur Veda." },
+      { q:"Which Veda did Yājñavalkya receive directly from Surya after his tapas?", options:["Kṛṣṇa Yajur Veda","Śukla Yajur Veda","Atharva Veda","Sāma Veda"], correct:1, explain:"Surya blessed Yājñavalkya with the Śukla Yajur Veda, a purer expression of Truth drawn directly from the Sun." }
+    ]
+  },
+  {
+    id:11,
+    title:'Rama and the Aditya Hṛdayam \u2013 A Glimpse of Divine Surrender',
+    body:[
+      "Even Rāma, the Pūrṇa Avatāra of Bhagavān, shows us the human condition — fatigue, discouragement, a sense of helplessness. On the battlefield, before facing Rāvaṇa, Rāma is tired, disheartened.",
+      "At that moment, Sage Agastya appears and teaches him the Āditya Hṛdayam, a hymn of surrender to Surya."
+    ],
+    shloka:{
+      dev:"ततो युद्धपरिश्रान्तं समरे चिन्तया स्थितम् ।",
+      translit:"O Rāma, exhausted from battle and overwhelmed by thought, listen to the hymn of Āditya."
+    },
+    questions:[
+      { q:"Who teaches Rāma the Āditya Hṛdayam?", options:["Sage Nārada","Sage Agastya","Sage Vaiśampāyana","Sage Vasiṣṭha"], correct:1, explain:"Sage Agastya appears on the battlefield and teaches Rāma the Āditya Hṛdayam." },
+      { q:"Before facing which foe does Rāma receive this teaching?", options:["Kumbhakarṇa","Rāvaṇa","Vāli","Indrajit"], correct:1, explain:"Rāma is taught the hymn before his battle with Rāvaṇa." },
+      { q:"What does the Āditya Hṛdayam ask Rāma to do?", options:["Retreat from battle","Listen to the hymn of Āditya, surrendering to Surya","Call upon Yama","Perform a yajña first"], correct:1, explain:"The hymn calls on Rāma to listen and surrender to Āditya, Surya, for strength." },
+      { q:"What does this episode reveal about Rāma, despite being the Pūrṇa Avatāra?", options:["He is immune to fatigue","He experiences fatigue and discouragement like anyone else","He refuses all help","He has forgotten his divinity"], correct:1, explain:"Even Rāma, exhausted and disheartened, shows the very human condition of fatigue." },
+      { q:"What kind of hymn is the Āditya Hṛdayam described as?", options:["A hymn of victory","A hymn of surrender to Surya","A funeral hymn","A hymn against Rāvaṇa"], correct:1, explain:"The Āditya Hṛdayam is a hymn of surrender to Surya, offered at a moment of exhaustion." }
+    ]
+  }
+];
+
+/* ============ COLOR GRADIENT ACROSS CHAPTERS ============ */
+const COLOR_STOPS = ['#1B1F3B','#B3401B','#E8A33D','#D97706','#6B2737'];
+function hexToRgb(hex){
+  hex = hex.replace('#','');
+  return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+}
+function rgbToHex(r,g,b){
+  return '#' + [r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
+}
+function colorAt(t){
+  const n = COLOR_STOPS.length;
+  const scaled = Math.max(0, Math.min(1,t)) * (n-1);
+  const i = Math.min(n-2, Math.floor(scaled));
+  const frac = scaled - i;
+  const a = hexToRgb(COLOR_STOPS[i]), b = hexToRgb(COLOR_STOPS[i+1]);
+  return rgbToHex(a[0]+(b[0]-a[0])*frac, a[1]+(b[1]-a[1])*frac, a[2]+(b[2]-a[2])*frac);
+}
+CHAPTERS.forEach((ch,i)=>{ ch.color = colorAt(CHAPTERS.length===1 ? 0 : i/(CHAPTERS.length-1)); });
+
+/* ============ SUN IMAGE GENERATOR ============ */
+function makeSunSVG(color, opts){
+  opts = opts || {};
+  const rayCount = opts.rayCount || 16;
+  const rays = [];
+  for(let i=0;i<rayCount;i++){
+    const a = (360/rayCount)*i;
+    const long = i % 2 === 0;
+    const r1 = 40;
+    const r2 = long ? 62 : 52;
+    const rad = a*Math.PI/180;
+    const x1 = 64 + r1*Math.cos(rad), y1 = 64 + r1*Math.sin(rad);
+    const x2 = 64 + r2*Math.cos(rad), y2 = 64 + r2*Math.sin(rad);
+    rays.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="${long?3:2}" stroke-linecap="round"/>`);
+  }
+  const gradId = 'sunGrad-' + color.replace('#','');
+  return `
+    <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="${gradId}" cx="40%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#FFF3D6"/>
+          <stop offset="55%" stop-color="${color}"/>
+          <stop offset="100%" stop-color="${color}" stop-opacity="0.85"/>
+        </radialGradient>
+      </defs>
+      ${rays.join('')}
+      <circle cx="64" cy="64" r="34" fill="url(#${gradId})"/>
+    </svg>
+  `;
+}
+
+/* ============ STATE ============ */
+const STORAGE_KEY = 'suryakatha-progress-v2';
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { chapterAnswers:{} };
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+let state = loadState();
+
+function isChapterComplete(ch){
+  const answers = state.chapterAnswers[ch.id] || {};
+  return ch.questions.every((_,qi)=>answers[qi]!==undefined);
+}
+
+/* ============ STAGE COLOR ============ */
+function setStageColor(hexColor){
+  document.documentElement.style.setProperty('--stage', hexColor);
+}
+
+/* ============ SCREENS ============ */
+const stageEl = document.getElementById('stage');
+
+function showTitle(){
+  setStageColor(COLOR_STOPS[0]);
+  stageEl.innerHTML = `
+    <div class="title-screen">
+      <div class="sun-hero">${makeSunSVG(COLOR_STOPS[0], {rayCount:20})}</div>
+      <h1 class="display">Surya Katha</h1>
+      <button class="intro-tap" id="enterBtn">
+        Vinay Varanasi in an enlightening talk tells us Surya Katha, with a striking episode from Krishna Katha, highlighting how the journey toward Surya began for a prominent figure.
+        <div class="intro-hint">Tap to begin</div>
+      </button>
+    </div>
+  `;
+  document.getElementById('enterBtn').addEventListener('click', showIndex);
+  window.scrollTo({top:0});
+}
+
+function showIndex(){
+  setStageColor(COLOR_STOPS[0]);
+  const completeCount = CHAPTERS.filter(isChapterComplete).length;
+  const allComplete = completeCount === CHAPTERS.length;
+  stageEl.innerHTML = `
+    <div class="index-header">
+      <div class="sun-hero">${makeSunSVG(COLOR_STOPS[Math.floor(COLOR_STOPS.length/2)], {rayCount:16})}</div>
+      <h1 class="display">Surya Katha</h1>
+      <p class="index-progress">${completeCount} of ${CHAPTERS.length} chapters complete</p>
+      ${allComplete ? `<p class="index-complete-note neon-blink">You&rsquo;ve now experienced a summary of Vinay Varanasi&rsquo;s lecture on Surya Katha. Soon the next release &mdash; the meaning of the Āditya Hṛdayam.</p>` : ''}
+    </div>
+    <div class="index-grid" id="indexGrid"></div>
+    <button class="reset-link" id="resetBtn">Reset progress</button>
+  `;
+  const grid = document.getElementById('indexGrid');
+  CHAPTERS.forEach((ch,i)=>{
+    const complete = isChapterComplete(ch);
+    const cell = document.createElement('button');
+    cell.className = 'index-cell' + (complete ? ' complete' : '');
+    cell.dataset.idx = i;
+    cell.innerHTML = `
+      <span class="cell-num">${i+1}</span>
+      <span class="cell-title">${ch.title}</span>
+      ${complete?'<span class="cell-check">✓</span>':''}
+    `;
+    grid.appendChild(cell);
+  });
+  grid.querySelectorAll('.index-cell').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.idx);
+      showChapter(idx, 'story', 0);
+      window.scrollTo({top:0});
+    });
+  });
+  document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
+  window.scrollTo({top:0});
+}
+
+function showChapter(chapterIdx, view, sub){
+  const ch = CHAPTERS[chapterIdx];
+  setStageColor(ch.color);
+  const answers = state.chapterAnswers[ch.id] || {};
+
+  if(!view){
+    const answeredKeys = Object.keys(answers);
+    if(answeredKeys.length>0){
+      view = 'quiz';
+      sub = ch.questions.findIndex((_,qi)=>answers[qi]===undefined);
+      if(sub === -1) sub = ch.questions.length-1;
+    } else {
+      view = 'story'; sub = 0;
+    }
+  }
+  if(sub===undefined) sub = 0;
+
+  if(view === 'story') renderStoryPage(chapterIdx, ch, sub);
+  else renderQuizQuestion(chapterIdx, ch, answers, sub);
+}
+
+function renderStoryPage(chapterIdx, ch, page){
+  const lastPage = ch.body.length-1;
+  const isLast = page === lastPage;
+  stageEl.innerHTML = `
+    <h1 class="chapter-title display">${ch.title}</h1>
+    <div class="card">
+      <p>${ch.body[page]}</p>
+      ${(isLast && ch.shloka) ? `<div class="shloka devanagari">${ch.shloka.dev}<span class="translit">${ch.shloka.translit}</span></div>` : ''}
+    </div>
+    <p class="page-indicator">Page ${page+1} of ${ch.body.length}</p>
+    <div class="nav-row-fixed">
+      <button class="nav-btn" id="backBtn">Back</button>
+      <button class="nav-btn primary" id="nextBtn">${isLast ? 'Answer the questions' : 'Next page'}</button>
+    </div>
+    <button class="reset-link" id="resetBtn">Reset progress</button>
+  `;
+  document.getElementById('backBtn').addEventListener('click', ()=>{
+    if(page===0) showIndex();
+    else showChapter(chapterIdx, 'story', page-1);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{
+    if(isLast) showChapter(chapterIdx, 'quiz', 0);
+    else showChapter(chapterIdx, 'story', page+1);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderQuizQuestion(chapterIdx, ch, answers, qi){
+  const q = ch.questions[qi];
+  const answered = answers[qi] !== undefined;
+  const isCorrect = answered && answers[qi] === q.correct;
+  const isLastQ = qi === ch.questions.length-1;
+
+  stageEl.innerHTML = `
+    <h1 class="chapter-title display">${ch.title}</h1>
+    <div class="quiz-block">
+      <p class="q-count">Question ${qi+1} of ${ch.questions.length}</p>
+      <p class="q-text">${q.q}</p>
+      <div class="options" data-q="${qi}">
+        ${q.options.map((opt,oi)=>{
+          let cls='opt';
+          if(answered){
+            if(oi===q.correct) cls+=' reveal-correct';
+            if(oi===answers[qi] && oi!==q.correct) cls+=' wrong';
+            if(oi===answers[qi] && oi===q.correct) cls+=' correct';
+          }
+          return `<button class="${cls}" ${answered?'disabled':''} data-oi="${oi}">${opt}</button>`;
+        }).join('')}
+      </div>
+      ${answered?`<div class="explain">${q.explain}</div>`:''}
+      ${isCorrect ? `
+        <div class="reward-wrap">
+          <div class="reward-sun">${makeSunSVG(ch.color)}</div>
+          <p class="reward-label">Correct</p>
+        </div>
+      ` : ''}
+    </div>
+    <p class="page-indicator">Question ${qi+1} of ${ch.questions.length}</p>
+    <div class="nav-row-fixed">
+      <button class="nav-btn" id="backBtn">Back</button>
+      <button class="nav-btn primary" id="nextBtn" ${answered?'':'disabled'}>${isLastQ ? 'Back to index' : 'Next question'}</button>
+    </div>
+    <button class="reset-link" id="resetBtn">Reset progress</button>
+  `;
+
+  stageEl.querySelector('.options').querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(!state.chapterAnswers[ch.id]) state.chapterAnswers[ch.id]={};
+      if(state.chapterAnswers[ch.id][qi] !== undefined) return;
+      state.chapterAnswers[ch.id][qi] = parseInt(btn.dataset.oi);
+      saveState();
+      showChapter(chapterIdx, 'quiz', qi);
+    });
+  });
+
+  document.getElementById('backBtn').addEventListener('click', ()=>{
+    if(qi>0) showChapter(chapterIdx, 'quiz', qi-1);
+    else showChapter(chapterIdx, 'story', ch.body.length-1);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{
+    if(!answered) return;
+    if(isLastQ) showIndex();
+    else showChapter(chapterIdx, 'quiz', qi+1);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============ RESET ============ */
+function showResetConfirm(){
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <p class="confirm-text">Reset all progress? This can't be undone.</p>
+      <div class="nav-row">
+        <button class="nav-btn" id="cancelResetBtn">Cancel</button>
+        <button class="nav-btn primary" id="confirmResetBtn">Reset</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('cancelResetBtn').addEventListener('click', ()=>overlay.remove());
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+  document.getElementById('confirmResetBtn').addEventListener('click', ()=>{
+    overlay.remove();
+    resetProgress();
+  });
+}
+function resetProgress(){
+  state = { chapterAnswers:{} };
+  saveState();
+  showIndex();
+}
+
+/* ============ INIT ============ */
+showTitle();
+</script>
+</body>
+</html>
