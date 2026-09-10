@@ -29,6 +29,10 @@
 
   /* ---------- Layout ---------- */
   .stage{ max-width:640px; margin:0 auto; padding:10px 20px 100px; }
+  .chapter-num{
+    margin:0 0 7px; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:rgba(246,239,227,0.5);
+  }
   h1.chapter-title{ font-size:1.7rem; line-height:1.2; margin:0 0 18px; font-weight:400; }
 
   .card{
@@ -36,6 +40,28 @@
     padding:22px 22px 24px; margin:18px 0; box-shadow:0 18px 40px rgba(0,0,0,0.35);
   }
   .card p{ line-height:1.65; margin:0; font-size:1rem; }
+  .card p + p{ margin-top:15px; }
+  .deva-list{
+    margin:18px 0 0; padding:0; list-style:none;
+    counter-reset:deva;
+  }
+  .deva-list li{
+    counter-increment:deva;
+    position:relative; padding:11px 0 11px 30px;
+    border-top:1px solid rgba(27,31,59,0.13);
+  }
+  .deva-list li:first-child{ border-top:none; padding-top:4px; }
+  .deva-list li::before{
+    content:counter(deva); position:absolute; left:0; top:12px;
+    font-family:'Marcellus',serif; font-size:0.8rem; color:rgba(36,28,21,0.42);
+  }
+  .deva-list li:first-child::before{ top:5px; }
+  .dv-name{ font-family:'Marcellus',serif; font-size:1.05rem; }
+  .dv-month{
+    margin-left:9px; font-size:0.66rem; letter-spacing:0.11em;
+    text-transform:uppercase; color:rgba(36,28,21,0.55); white-space:nowrap;
+  }
+  .dv-desc{ display:block; margin-top:3px; line-height:1.55; font-size:0.93rem; color:var(--ink-soft); }
   .shloka{
     margin:16px 0 0; padding:14px 16px; border-left:3px solid var(--stage);
     background:rgba(27,31,59,0.05); font-size:1.05rem; line-height:1.9;
@@ -108,6 +134,18 @@
   }
 
   /* ---------- Index screen ---------- */
+  .top-back{
+    display:inline-flex; align-items:center; gap:7px;
+    margin:6px 0 0; padding:10px 14px 10px 0; min-height:44px;
+    background:none; border:none; cursor:pointer;
+    color:rgba(246,239,227,0.55); font-family:'Karla',sans-serif;
+    font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
+    transition:color 0.18s ease;
+  }
+  .top-back .top-back-arrow{ font-size:0.95rem; letter-spacing:0; line-height:1; }
+  .top-back:active{ color:var(--ivory); }
+  @media (hover:hover){ .top-back:hover{ color:var(--ivory); } }
+
   .index-header{ text-align:center; padding:14px 10px 4px; }
   .index-header .sun-hero{ width:44px; height:44px; margin:0 auto 8px; }
   .index-header h1{ font-size:1.15rem; margin:0 0 4px; letter-spacing:0.03em; }
@@ -135,21 +173,34 @@
   }
 
   .index-grid{
-    display:grid; grid-template-columns:repeat(6, 1fr); gap:16px 8px;
+    display:flex; flex-direction:column; gap:1px;
     margin:0 0 10px;
+    border-top:1px solid rgba(246,239,227,0.12);
   }
   .index-cell{
-    display:flex; flex-direction:column; align-items:center; gap:6px;
-    background:none; border:none; cursor:pointer; padding:4px 2px;
+    display:flex; flex-direction:row; align-items:center; gap:14px;
+    width:100%; text-align:left;
+    background:none; border:none; border-bottom:1px solid rgba(246,239,227,0.12);
+    cursor:pointer; padding:15px 4px;
     color:rgba(246,239,227,0.88); font-family:'Karla',sans-serif;
+    transition:background 0.18s ease, padding-left 0.18s ease;
   }
-  .index-cell:active{ opacity:0.7; }
+  .index-cell:active{ background:rgba(246,239,227,0.07); }
+  @media (hover:hover){
+    .index-cell:hover{ background:rgba(246,239,227,0.05); padding-left:10px; }
+  }
   .index-cell .cell-num{
-    font-family:'Marcellus',serif; font-size:0.8rem; color:rgba(246,239,227,0.5);
+    flex:0 0 2ch; text-align:right;
+    font-family:'Marcellus',serif; font-size:1.05rem; color:rgba(246,239,227,0.42);
   }
-  .index-cell.complete .cell-num{ color:var(--ivory); }
-  .index-cell .cell-title{ font-size:0.66rem; line-height:1.25; text-align:center; }
-  .index-cell .cell-check{ font-size:0.65rem; color:rgba(246,239,227,0.7); }
+  .index-cell.complete .cell-num{ color:var(--gold-line); }
+  .index-cell .cell-title{
+    flex:1; font-size:0.92rem; line-height:1.35;
+  }
+  .index-cell.complete .cell-title{ color:var(--ivory); }
+  .index-cell .cell-check{
+    flex:0 0 auto; font-size:0.8rem; color:var(--gold-line);
+  }
 
   .reset-link{
     display:block; text-align:center; margin-top:34px; font-size:0.78rem;
@@ -243,9 +294,26 @@ const CHAPTERS = [
     title:'From Omkāra to Ādityas: Manifestation through Aditi',
     body:[
       "From Brahmā's mind came Prajāpati, then Marīci, then Kaśyapa, who married two daughters of Dakṣa Prajāpati: Diti, mother of the Dānavas, and Aditi, mother of the Devatās.",
-      "As the balance of the worlds tilted toward darkness, with dānavic forces growing stronger, Aditi prayed earnestly to Omkāra for divine intervention. Her intense tapas bore fruit — twelve forms of Omkāra manifested in her garbha as the Dvādaśa Ādityas, each ruling a month: Indra (Śrāvaṇa), Dhātā (Chaitra), Parjanya (Phālguna), Pūṣā (Māgha), Tvaṣṭā (Āśvina), Aryamān (Vaiśākha), Bhaga (Pauṣa), Vivasvān (Bhādrapada), Viṣṇu in his Vāmana form (Kārtika), Aṃśu (Mārgaśīrṣa), Varuṇa (Āṣāḍha), and Mitra (Jyeṣṭha).",
+      "As the balance of the worlds tilted toward darkness, with dānavic forces growing stronger, Aditi prayed earnestly to Omkāra for divine intervention. Her intense tapas bore fruit — twelve forms of Omkāra manifested in her garbha as the Dvādaśa Ādityas. Each reflects one divine facet of Surya, ruling a month of the year and pervading creation in its own way:",
       "Together, these Twelve form the cosmic body of Surya — Omkāra made visible in time and space, sustaining creation through seasons, direction, food, water, fire, breath, and light. The Ṛṣis hint at a deep truth: that divine form of Surya is present in all, everywhere. The Ādityas sustain loka-samya, balance in the worlds — and to meditate upon Surya is to recognize that light exists within, just as Brahmā did in the darkness."
     ],
+    list:{
+      after:1,
+      items:[
+        { name:"Indra",   month:"Śrāvaṇa (Jul\u2013Aug)",   desc:"Ruler of the gods, associated with strength and leadership." },
+        { name:"Dhātā",   month:"Chaitra (Mar\u2013Apr)",   desc:"The one who creates and sustains all living beings." },
+        { name:"Parjanya",month:"Phālguna (Feb\u2013Mar)",  desc:"The form that brings nourishing rain and fertility." },
+        { name:"Pūṣā",    month:"Māgha (Jan\u2013Feb)",     desc:"Nourishes the earth, causing crops and vegetation to grow." },
+        { name:"Tvaṣṭā",  month:"Āśvina (Sep\u2013Oct)",    desc:"Dwells in trees, herbs, and the creative forms of life." },
+        { name:"Aryamān", month:"Vaiśākha (Apr\u2013May)",  desc:"The vital life force \u2014 the wind, the breath within the body." },
+        { name:"Bhaga",   month:"Pauṣa (Dec\u2013Jan)",     desc:"Present in Bhūmi Devi, Mother Earth, and dwelling in all living beings." },
+        { name:"Vivasvān",month:"Bhādrapada (Aug\u2013Sep)",desc:"The fire within \u2014 the power of digestion and transformation." },
+        { name:"Viṣṇu",   month:"Kārtika (Oct\u2013Nov)",   desc:"Especially in his Vāmana avatāra, the form that destroys evil and restores dharma." },
+        { name:"Aṃśu",    month:"Mārgaśīrṣa (Nov\u2013Dec)",desc:"The gentle form seen in a smile \u2014 the subtle radiance of joy." },
+        { name:"Varuṇa",  month:"Āṣāḍha (Jun\u2013Jul)",    desc:"Lord of waters, present in all forms of moisture and in the oceans." },
+        { name:"Mitra",   month:"Jyeṣṭha (May\u2013Jun)",   desc:"The divine friend \u2014 harmony, companionship, and unity." }
+      ]
+    },
     questions:[
       { q:"Which of Kaśyapa's wives is the mother of the Dānavas?", options:["Aditi","Sanjñā","Diti","Chhāyā"], correct:2, explain:"Diti mothered the Dānavas, while her sister-wife Aditi mothered the Devatās." },
       { q:"How many forms of Omkāra manifested as the Ādityas?", options:["Seven","Nine","Ten","Twelve"], correct:3, explain:"Twelve forms of Omkāra manifested in Aditi's womb as the Dvādaśa Ādityas." },
@@ -258,10 +326,10 @@ const CHAPTERS = [
     id:4,
     title:'Surya \u2013 The Grihasta',
     body:[
-      "Surya enters Gṛhasthāśrama, the householder stage, by marrying Sanjñā, daughter of the celestial architect Viśvakarmā. Though she honors her divine husband, Sanjñā finds it hard to endure his tejas, his intense radiance. She bears three children: Vaivasvata Manu, Yama, and Yamī, the river Yamunā.",
-      "Unable to bear Surya's searing brilliance, Sanjñā creates a shadow of herself — Chhāyā — and leaves her in her own place, while she journeys north to perform penance at Kāmākhyā, disguised as a mare. Surya, unaware of the switch, fathers more children with Chhāyā: Śani, who becomes the stern planet of karma and justice; Tāpatī, a radiant river goddess; and Sāvarṇi Manu, the future Manu of the eighth Manvantara.",
+      "Surya enters Gṛhasthāśrama, the householder stage, by marrying Sanjñā, daughter of the celestial architect Viśvakarmā. Though she honors her divine husband, Sanjñā finds it hard to endure his tejas, his intense radiance. She bears three children: Vaivasvata Manu, progenitor of the current Manvantara; Yama, god of death and guardian of dharma; and Yamī, known also as the river Yamunā, a divine nurturer.",
+      "Unable to bear Surya's searing brilliance, Sanjñā creates a shadow of herself — Chhāyā — and leaves her in her own place, while she journeys north to perform penance at Kāmākhyā in Kāmarūpa — present-day Assam — disguised as a mare. Surya, unaware of the switch, fathers more children with Chhāyā: Śani, who becomes the stern planet of karma and justice; Tāpatī, a radiant river goddess; and Sāvarṇi Manu, the future Manu of the eighth Manvantara.",
       "Chhāyā's partiality becomes evident — Yama, hurt by her favoritism, raises his leg in anger to strike her, and she curses him: may his leg fall lifeless to the ground. Surya intervenes and softens the curse — flesh may fall and be eaten by worms, but the limb shall regenerate. In the chaos, the truth comes out: Chhāyā is not Sanjñā.",
-      "Surya, stricken, seeks out his wife. Viśvakarmā advises that his tejas must be lessened, and chisels away fifteen of Surya's sixteen parts of brilliance; from that radiance emerge the Sudarśana Chakra, Śiva's Triśūla, Muruga's Vel, and Kubera's Puṣpaka Vimāna. The Devas, unable to withstand Surya's intensity, come to him praying he restrain his radiance. Gentled at last, Surya — as a stallion — finally meets Sanjñā, now a mare, in the forest. Their union brings the twin Aśvinī Kumāras and Revanta, guardian of Surya's domain. Śani, though reunited with his family, always feels apart, knowing Sanjñā is not his birth mother."
+      "Surya, stricken, seeks out his wife. Viśvakarmā advises that his tejas must be lessened, and chisels away fifteen of Surya's sixteen parts of brilliance; from that radiance emerge the Sudarśana Chakra, Śiva's Triśūla, Muruga's Vel, and Kubera's Puṣpaka Vimāna. The Devas, unable to withstand Surya's intensity, come to him in Śākadvīpa, each praying he restrain his radiance. Gentled at last, Surya — as a stallion — finally meets Sanjñā, now a mare, in the forest. Their union brings the twin Aśvinī Kumāras — Nāṣṭra and Dāsra, who represent diagnosis and cure, physicians to the gods — and Revanta, guardian of Surya's domain. Śani, though reunited with his family, always feels apart, knowing Sanjñā is not his birth mother."
     ],
     shloka:{
       dev:"स्वस्थितेषु जगन्माता धर्मः वर्षा हिमाकरः । देवदेव दिवाकरः ॥",
@@ -269,10 +337,14 @@ const CHAPTERS = [
     },
     questions:[
       { q:"Who is Surya's wife, daughter of Viśvakarmā?", options:["Chhāyā","Aditi","Sanjñā","Tāpatī"], correct:2, explain:"Sanjñā, daughter of Viśvakarmā, becomes Surya's wife as he enters the householder stage." },
+      { q:"Sanjñā's three children with Surya are Vaivasvata Manu, Yama and Yamī. What is Vaivasvata Manu?", options:["The progenitor of the current Manvantara","The guardian of dharma","The future Manu of the eighth Manvantara","A divine nurturer"], correct:0, explain:"Vaivasvata Manu is the progenitor of the current Manvantara. Yama is the guardian of dharma, and Yamī \u2014 the river Yamunā \u2014 a divine nurturer." },
       { q:"What shadow-self did Sanjñā create before leaving?", options:["Tāpatī","Chhāyā","Yamī","Sāvarṇi"], correct:1, explain:"Sanjñā fashioned Chhāyā to endure Surya's radiance in her place." },
+      { q:"Where does Sanjñā journey to perform her penance as a mare?", options:["Śākadvīpa","Kāmākhyā, in Kāmarūpa (Assam)","Dwaraka","The Sūrya Maṇḍala"], correct:1, explain:"Disguised as a mare, Sanjñā journeys north to Kāmākhyā in Kāmarūpa \u2014 present-day Assam." },
       { q:"Which child of Surya and Chhāyā becomes the stern planet of karma?", options:["Yama","Śani","Revanta","Manu"], correct:1, explain:"Śani, born of Surya and Chhāyā, becomes the planet of karma and justice." },
       { q:"How many of his sixteen parts of brilliance did Viśvakarmā carve away from Surya?", options:["Ten","Twelve","Fifteen","Sixteen"], correct:2, explain:"Viśvakarmā chiseled away fifteen of Surya's sixteen parts of tejas." },
-      { q:"What are the twin children born when Surya, as a stallion, reunites with Sanjñā as a mare?", options:["Śani and Tāpatī","The Aśvinī Kumāras","Manu and Yamī","Revanta and Chhāyā"], correct:1, explain:"Their union brings the Aśvinī Kumāras, the twin divine physicians." }
+      { q:"Where do the Devas come to Surya, praying that he restrain his radiance?", options:["Kāmākhyā","Śākadvīpa","Dwaraka","Ayodhyā"], correct:1, explain:"Unable to withstand his intensity, the Devas come to Surya in Śākadvīpa, each praying individually that he restrain his radiance." },
+      { q:"What are the twin children born when Surya, as a stallion, reunites with Sanjñā as a mare?", options:["Śani and Tāpatī","The Aśvinī Kumāras","Manu and Yamī","Revanta and Chhāyā"], correct:1, explain:"Their union brings the Aśvinī Kumāras, the twin divine physicians." },
+      { q:"By what names are the Aśvinī Kumāras also known, and what do they represent?", options:["Nāṣṭra and Dāsra \u2014 diagnosis and cure","Uṣā and Padminī \u2014 dawn and wisdom","Nāṣṭra and Revanta \u2014 healing and guardianship","Tāpatī and Sāvarṇi \u2014 river and lineage"], correct:0, explain:"The twins are Nāṣṭra and Dāsra. They represent diagnosis and cure, and serve as physicians to the gods." }
     ]
   },
   {
@@ -306,7 +378,7 @@ const CHAPTERS = [
       { q:"What is the smallest unit of time described, based on the blink of an eye?", options:["Kāṣṭhā","Kālā","Nimeṣa","Muhūrta"], correct:2, explain:"A Nimeṣa, the blink of an eye, is the smallest unit from which the whole calendar builds." },
       { q:"How many Nimeṣas make one Kāṣṭhā?", options:["10","15","20","30"], correct:1, explain:"15 Nimeṣas make one Kāṣṭhā." },
       { q:"Roughly how long is one Muhūrta?", options:["About 20 minutes","About 48 minutes","About 1 hour","About 2 hours"], correct:1, explain:"One Muhūrta is roughly 48 minutes, made of 20 Kālās." },
-      { q:"Which direction is defined by where the sun rises?", options:["North","South","East (Pūrva)","West"], correct:2, explain:"The direction of sunrise is East, Pūrva, and all other directions are named relative to it." },
+      { q:"Which direction is defined by where the sun rises?", options:["North (Uttara)","South (Dakṣiṇa)","East (Pūrva)","West (Paścima)"], correct:2, explain:"The direction of sunrise is East \u2014 Pūrva \u2014 and all other directions are named relative to it." },
       { q:"According to the Upaniṣads, what is the sun called in relation to the eye?", options:["Ādityaḥ cakṣuḥ, the eye of all beings","Sūrya netra, the third eye","Cakṣu devatā, the god of sight","Ravi dṛṣṭi, the sun's gaze"], correct:0, explain:"The Upaniṣads describe the sun as Ādityaḥ cakṣuḥ — the eye of all beings." }
     ]
   },
@@ -413,6 +485,34 @@ function colorAt(t){
 }
 CHAPTERS.forEach((ch,i)=>{ ch.color = colorAt(CHAPTERS.length===1 ? 0 : i/(CHAPTERS.length-1)); });
 
+/* ============ STORY PAGINATION ============ */
+/* A chapter is one page unless it runs long, in which case it splits into two.
+   Chapter bodies fall into two clear bands - 295-838 chars and 1052-1674 - so the
+   threshold sits in the gap between them. Never more than two pages. */
+const ONE_PAGE_MAX_CHARS = 900;
+function paraWeights(ch){
+  const w = ch.body.map(p=>p.length);
+  if(ch.list) w[ch.list.after] += ch.list.items
+    .reduce((a,it)=>a + it.name.length + it.month.length + it.desc.length, 0);
+  return w;
+}
+/* Pages are arrays of paragraph indices, so an attached list stays with its paragraph. */
+function paginate(ch){
+  const idx = ch.body.map((_,i)=>i);
+  const w = paraWeights(ch);
+  const total = w.reduce((a,b)=>a+b, 0);
+  if(total <= ONE_PAGE_MAX_CHARS || ch.body.length < 2) return [idx];
+  // split at whichever paragraph boundary leaves the two pages most even
+  let at = 1, bestDiff = Infinity;
+  for(let i=1; i<ch.body.length; i++){
+    const head = w.slice(0,i).reduce((a,b)=>a+b, 0);
+    const diff = Math.abs(head - (total-head));
+    if(diff < bestDiff){ bestDiff = diff; at = i; }
+  }
+  return [idx.slice(0,at), idx.slice(at)];
+}
+CHAPTERS.forEach(ch=>{ ch.pages = paginate(ch); });
+
 /* ============ SUN IMAGE GENERATOR ============ */
 function makeSunSVG(color, opts){
   opts = opts || {};
@@ -490,6 +590,9 @@ function showIndex(){
   const completeCount = CHAPTERS.filter(isChapterComplete).length;
   const allComplete = completeCount === CHAPTERS.length;
   stageEl.innerHTML = `
+    <button class="top-back" id="titleBtn">
+      <span class="top-back-arrow">&larr;</span> Title
+    </button>
     <div class="index-header">
       <div class="sun-hero">${makeSunSVG(COLOR_STOPS[Math.floor(COLOR_STOPS.length/2)], {rayCount:16})}</div>
       <h1 class="display">Surya Katha</h1>
@@ -520,6 +623,7 @@ function showIndex(){
     });
   });
   document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
+  document.getElementById('titleBtn').addEventListener('click', showTitle);
   window.scrollTo({top:0});
 }
 
@@ -544,16 +648,30 @@ function showChapter(chapterIdx, view, sub){
   else renderQuizQuestion(chapterIdx, ch, answers, sub);
 }
 
+function renderList(list){
+  return `<ol class="deva-list">` + list.items.map(it=>`
+    <li>
+      <span class="dv-name">${it.name}</span><span class="dv-month">${it.month}</span>
+      <span class="dv-desc">${it.desc}</span>
+    </li>`).join('') + `</ol>`;
+}
+
 function renderStoryPage(chapterIdx, ch, page){
-  const lastPage = ch.body.length-1;
+  const pages = ch.pages;
+  const lastPage = pages.length-1;
+  page = Math.max(0, Math.min(lastPage, page));
   const isLast = page === lastPage;
+  const paras = pages[page].map(i=>
+    `<p>${ch.body[i]}</p>` + ((ch.list && ch.list.after===i) ? renderList(ch.list) : '')
+  );
   stageEl.innerHTML = `
+    <p class="chapter-num">Chapter ${chapterIdx+1}</p>
     <h1 class="chapter-title display">${ch.title}</h1>
     <div class="card">
-      <p>${ch.body[page]}</p>
+      ${paras.join('')}
       ${(isLast && ch.shloka) ? `<div class="shloka devanagari">${ch.shloka.dev}<span class="translit">${ch.shloka.translit}</span></div>` : ''}
     </div>
-    <p class="page-indicator">Page ${page+1} of ${ch.body.length}</p>
+    ${pages.length>1 ? `<p class="page-indicator">Page ${page+1} of ${pages.length}</p>` : ''}
     <div class="nav-row-fixed">
       <button class="nav-btn" id="backBtn">Back</button>
       <button class="nav-btn primary" id="nextBtn">${isLast ? 'Answer the questions' : 'Next page'}</button>
@@ -581,6 +699,7 @@ function renderQuizQuestion(chapterIdx, ch, answers, qi){
   const isLastQ = qi === ch.questions.length-1;
 
   stageEl.innerHTML = `
+    <p class="chapter-num">Chapter ${chapterIdx+1}</p>
     <h1 class="chapter-title display">${ch.title}</h1>
     <div class="quiz-block">
       <p class="q-count">Question ${qi+1} of ${ch.questions.length}</p>
@@ -624,7 +743,7 @@ function renderQuizQuestion(chapterIdx, ch, answers, qi){
 
   document.getElementById('backBtn').addEventListener('click', ()=>{
     if(qi>0) showChapter(chapterIdx, 'quiz', qi-1);
-    else showChapter(chapterIdx, 'story', ch.body.length-1);
+    else showChapter(chapterIdx, 'story', ch.pages.length-1);
     window.scrollTo({top:0, behavior:'smooth'});
   });
   document.getElementById('nextBtn').addEventListener('click', ()=>{
