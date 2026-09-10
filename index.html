@@ -29,6 +29,7 @@
 
   /* ---------- Layout ---------- */
   .stage{ max-width:640px; margin:0 auto; padding:10px 20px 100px; }
+  .chapter-bar{ display:flex; align-items:center; gap:20px; margin-bottom:1px; }
   .chapter-num{
     margin:0 0 7px; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase;
     color:rgba(246,239,227,0.5);
@@ -122,7 +123,20 @@
     text-align:center; padding:24px;
   }
   .sun-hero{ width:180px; height:180px; margin-bottom:8px; }
-  .title-screen h1{ font-size:2.6rem; margin:0 0 24px; letter-spacing:0.02em; }
+  .title-screen h1{ font-size:2.6rem; margin:0 0 8px; letter-spacing:0.02em; }
+  .credit-block{ margin:0 0 24px; }
+  .credit-label{
+    margin:0 0 5px; font-size:0.64rem; letter-spacing:0.2em; text-transform:uppercase;
+    color:rgba(246,239,227,0.5);
+  }
+  .credit-name{
+    margin:0; font-size:1.5rem; line-height:1.15; letter-spacing:0.02em;
+    color:#E8A33D;
+  }
+  .credit-note{
+    margin:9px auto 0; max-width:340px; font-size:0.82rem; line-height:1.5;
+    font-style:italic; color:rgba(246,239,227,0.62);
+  }
   .intro-tap{
     max-width:440px; padding:6px; background:none; border:none; cursor:pointer;
     color:rgba(246,239,227,0.88); font-family:'Karla',sans-serif; font-size:1rem; line-height:1.65;
@@ -134,22 +148,26 @@
   }
 
   /* ---------- Index screen ---------- */
-  .top-back{
+  .index-screen{ position:relative; }
+  .index-screen .top-back{ position:absolute; top:0; left:0; z-index:2; }
+  .index-screen .top-reset{ position:absolute; top:0; right:0; z-index:2; }
+  .top-back, .top-reset{
     display:inline-flex; align-items:center; gap:7px;
-    margin:6px 0 0; padding:10px 14px 10px 0; min-height:44px;
+    padding:10px 14px 10px 0; min-height:44px;
     background:none; border:none; cursor:pointer;
     color:rgba(246,239,227,0.55); font-family:'Karla',sans-serif;
     font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
     transition:color 0.18s ease;
   }
-  .top-back .top-back-arrow{ font-size:0.95rem; letter-spacing:0; line-height:1; }
-  .top-back:active{ color:var(--ivory); }
-  @media (hover:hover){ .top-back:hover{ color:var(--ivory); } }
+  .top-back .top-back-arrow, .top-reset .top-back-arrow{ font-size:0.95rem; letter-spacing:0; line-height:1; }
+  .top-back:active, .top-reset:active{ color:var(--ivory); }
+  @media (hover:hover){ .top-back:hover, .top-reset:hover{ color:var(--ivory); } }
+  .top-reset{ padding:10px 0 10px 14px; }
 
-  .index-header{ text-align:center; padding:14px 10px 4px; }
-  .index-header .sun-hero{ width:44px; height:44px; margin:0 auto 8px; }
-  .index-header h1{ font-size:1.15rem; margin:0 0 4px; letter-spacing:0.03em; }
-  .index-progress{ font-size:0.7rem; color:rgba(246,239,227,0.5); letter-spacing:0.05em; margin:0 0 16px; }
+  .index-header{ text-align:center; padding:6px 46px 0; }
+  .index-header .sun-hero{ width:30px; height:30px; margin:0 auto 5px; }
+  .index-header h1{ font-size:1.05rem; margin:0 0 2px; letter-spacing:0.03em; }
+  .index-progress{ font-size:0.66rem; color:rgba(246,239,227,0.5); letter-spacing:0.05em; margin:0 0 10px; }
   .index-complete-note{
     max-width:420px; margin:0 auto 20px; font-size:0.85rem; line-height:1.6;
     font-style:italic; font-weight:600;
@@ -178,10 +196,10 @@
     border-top:1px solid rgba(246,239,227,0.12);
   }
   .index-cell{
-    display:flex; flex-direction:row; align-items:center; gap:14px;
-    width:100%; text-align:left;
+    display:flex; flex-direction:row; align-items:center; gap:13px;
+    width:100%; min-height:44px; text-align:left;
     background:none; border:none; border-bottom:1px solid rgba(246,239,227,0.12);
-    cursor:pointer; padding:15px 4px;
+    cursor:pointer; padding:0 4px;
     color:rgba(246,239,227,0.88); font-family:'Karla',sans-serif;
     transition:background 0.18s ease, padding-left 0.18s ease;
   }
@@ -195,7 +213,8 @@
   }
   .index-cell.complete .cell-num{ color:var(--gold-line); }
   .index-cell .cell-title{
-    flex:1; font-size:0.92rem; line-height:1.35;
+    flex:1; min-width:0; font-size:0.9rem; line-height:1.3;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .index-cell.complete .cell-title{ color:var(--ivory); }
   .index-cell .cell-check{
@@ -237,6 +256,7 @@ const CHAPTERS = [
   {
     id:0,
     title:'Surya in the Scriptures',
+    short:'Surya in the Scriptures',
     body:[
       "Surya is called the Pratyakṣa Bhagavān — the one form of God visible to everyone, every single day. Yet daily darshan breeds a strange forgetting: we tend to see the sun as fire and heat, rarely as the source of life, order, and vision that the Ṛṣis revered. His stories appear across the Mārkaṇḍeya Purāṇa, the Bhaviṣyottara Purāṇa, the Viṣṇu Purāṇa, the Matsya Purāṇa, the Rāmāyaṇa, and the Mahābhārata — invoked in the Gāyatrī mantra, honored in the Sandhyāvandanam, remembered in countless stotras.",
       "A story from the Krishna Katha shows how this forgetting gets undone. In Dwaraka, Krishna's son Sambha — born of Jambavatī — grew vain about his own beauty. Sage Nārada warned him that his pride would catch up with him. It did: Sambha looked upon his own mothers with an impure thought while Krishna bathed with his wives, and Krishna cursed him with leprosy, a punishment meant to burn away pride rooted in the body.",
@@ -253,6 +273,7 @@ const CHAPTERS = [
   {
     id:1,
     title:'Health from Surya, Wealth from Agni, Knowledge from Īśvara, Liberation from Janārdana',
+    short:'Health, Wealth, Knowledge, Mokṣa',
     body:[
       "Krishna sends Sambha toward Surya through a verse that still guides seekers today: each Devatā carries a dominant guṇa, or quality, and though all are capable of bestowing blessings, a seeker is best served approaching the Devatā most aligned with their aspiration.",
       "Surya is the giver of life, vitality, and clarity — the light of health and dharma. That is why atonement for a curse on the body begins with turning to him."
@@ -272,6 +293,7 @@ const CHAPTERS = [
   {
     id:2,
     title:'Brahmā\u2019s Vision of the Light: From Darkness to Sṛṣṭi',
+    short:'Brahmā’s Vision of the Light',
     body:[
       "At the beginning of creation, during the great pralaya, even Brahmā found himself surrounded by tamas, unable to create anything. In meditation, he heard a subtle vibration of sacred syllables emerging from within.",
       "These were the sapta vyāhṛtis, the seven realms, rising from śabda brahman — sound itself: Om Bhūḥ, Om Bhuvaḥ, Om Svaḥ, Om Mahaḥ, Om Janaḥ, Om Tapaḥ, Om Satyam.",
@@ -292,6 +314,7 @@ const CHAPTERS = [
   {
     id:3,
     title:'From Omkāra to Ādityas: Manifestation through Aditi',
+    short:'From Omkāra to Ādityas',
     body:[
       "From Brahmā's mind came Prajāpati, then Marīci, then Kaśyapa, who married two daughters of Dakṣa Prajāpati: Diti, mother of the Dānavas, and Aditi, mother of the Devatās.",
       "As the balance of the worlds tilted toward darkness, with dānavic forces growing stronger, Aditi prayed earnestly to Omkāra for divine intervention. Her intense tapas bore fruit — twelve forms of Omkāra manifested in her garbha as the Dvādaśa Ādityas. Each reflects one divine facet of Surya, ruling a month of the year and pervading creation in its own way:",
@@ -325,6 +348,7 @@ const CHAPTERS = [
   {
     id:4,
     title:'Surya \u2013 The Grihasta',
+    short:'Surya – The Grihasta',
     body:[
       "Surya enters Gṛhasthāśrama, the householder stage, by marrying Sanjñā, daughter of the celestial architect Viśvakarmā. Though she honors her divine husband, Sanjñā finds it hard to endure his tejas, his intense radiance. She bears three children: Vaivasvata Manu, progenitor of the current Manvantara; Yama, god of death and guardian of dharma; and Yamī, known also as the river Yamunā, a divine nurturer.",
       "Unable to bear Surya's searing brilliance, Sanjñā creates a shadow of herself — Chhāyā — and leaves her in her own place, while she journeys north to perform penance at Kāmākhyā in Kāmarūpa — present-day Assam — disguised as a mare. Surya, unaware of the switch, fathers more children with Chhāyā: Śani, who becomes the stern planet of karma and justice; Tāpatī, a radiant river goddess; and Sāvarṇi Manu, the future Manu of the eighth Manvantara.",
@@ -350,6 +374,7 @@ const CHAPTERS = [
   {
     id:5,
     title:'Surya as Gateway to the Divine',
+    short:'Gateway to the Divine',
     body:[
       "Surya is not only the pratyakṣa deva, the one deity we see, but also the gateway to all the other gods. In yajña, when offerings are made into Agni, they are not consumed by fire. Instead, their essence is carried through Agni to the Surya Maṇḍala, the solar gateway, and from there delivered to whichever deity the offering was intended for.",
       "Each time the priest says \"Idam Na Mama\" — this is not mine — it marks a sacred surrender through the Āditya Maṇḍala, the divine conduit of cosmic communication."
@@ -369,6 +394,7 @@ const CHAPTERS = [
   {
     id:6,
     title:'Aditya: Space and Time',
+    short:'Aditya: Space and Time',
     body:[
       "Surya is the very foundation upon which space and time become measurable. It is light that reveals direction: the direction in which the sun rises is known as East, Pūrva, and every other direction is named relative to it.",
       "Time, too, flows from Surya. Even in darkness, time is measured — by the blink of an eye, a Nimeṣa. From this tiniest unit a whole cosmic calendar builds: 15 Nimeṣas make one Kāṣṭhā; 30 Kāṣṭhās make one Kālā; 20 Kālās make one Muhūrta, roughly 48 minutes; 30 Muhūrtas make one Ahorātra, a full day and night; 15 Ahorātras make one Pakṣa, a fortnight; 2 Pakṣas make one Māsa, a month; 6 Māsas make one Ayana, a half-year; and 2 Ayanas make one Saṃvatsara, a year. The twelve months are governed by the twelve Ādityas.",
@@ -385,6 +411,7 @@ const CHAPTERS = [
   {
     id:7,
     title:'Surya and Yajña: The Divine Transporter',
+    short:'Surya and Yajña',
     body:[
       "Surya is the only celestial being who shines with his own intrinsic light, his svabhāva jyoti. All others — Chandra, the planets, the stars — glow only by reflecting his brilliance. Chandra becomes the intermediary of rasa, receiving Surya's light in varying degrees across fifteen days; on Pūrṇimā, the full moon, Chandra reflects that light completely, and the divine essence is transferred to all beings — plants, waters, minds.",
       "From the next day, as the waning Kṛṣṇa Pakṣa begins, one Devatā each night arrives to receive a portion of that stored amṛita as āhāra, nourishment: first Agni, then Ravi (Surya) himself, then the Viśve Devās, Prajāpati, Varuṇa, Indra, the Ṛṣis, the Aṣṭa Vasus, Yama, the Marut Gaṇas, Rudra, Viṣṇu, Kubera, Paśupati (Śiva), and finally, on Amāvasyā, the Pitṛ Devatās.",
@@ -402,6 +429,7 @@ const CHAPTERS = [
   {
     id:8,
     title:'Hanuman and Surya \u2013 A Leap Towards Light',
+    short:'Hanuman and Surya',
     body:[
       "As a child, Hanuman, the radiant son of Vāyu, once mistook the glowing Surya in the sky for a ripe fruit and leapt up to devour him. Indra, fearing chaos, struck Hanuman with his Vajra; the blow hit his jaw, hanu, and he fell to earth. Vāyu, enraged, withdrew air from all beings, threatening universal suffocation — until the gods, realizing Hanuman's divinity, blessed him with boons, and Surya promised to one day teach him Ved Vidyā.",
       "Years later, Hanuman approached Surya: \"You are the one who sees all. I seek to learn all Vidyā from you.\" Surya replied, \"I cannot stay still — I am ever moving. How will you learn?\" Hanuman answered, \"Then I shall keep facing you always. As you move, I will too.\" And so, from sunrise to sunset, he followed Surya's chariot, learning all the Vedas and their secrets.",
@@ -418,6 +446,7 @@ const CHAPTERS = [
   {
     id:9,
     title:'The Power of Usha Kiran \u2013 Dawn of Inner Awakening',
+    short:'The Power of Usha Kiran',
     body:[
       "The first rays of Surya — Uṣā Kiraṇa — carry deep spiritual potency. They are not just light, but the ignition of consciousness. Sādhanā done at this hour burns inner darkness, laziness, and tamas.",
       "Surya appears each morning with three aspects: Uṣā, the golden dawn, herald of awakening; Chhāyā, the shadow of karma, inviting reflection; and Padminī, the blossoming light of wisdom. These rays do not just illuminate the world — they awaken the heart, coming not only to burn away sins, pāpa karma, but to bloom divine potential within."
@@ -433,6 +462,7 @@ const CHAPTERS = [
   {
     id:10,
     title:'Y\u0101j\u00f1avalkya and the Grace of Surya \u2013 Birth of Two Yajur Vedas',
+    short:'Yājñavalkya and Surya’s Grace',
     body:[
       "At Vaiśampāyana's āśrama, during a great gathering of ṛṣis, Vaiśampāyana grew angry with his student Yājñavalkya over perceived arrogance and cursed him: \"May all the Vedic knowledge I taught you leave you.\" Yājñavalkya vomited out all the Vedas he had learned; the expelled knowledge appeared as a dark mass, and the ṛṣis, transformed into Tittiri birds, pecked at it and compiled it. This became the Kṛṣṇa Yajur Veda, whose spiritual culmination is the Taittirīya Upaniṣad.",
       "Undeterred, Yājñavalkya did tapas to Surya, seeking divine wisdom directly from the Jñānasvarūpa. Surya appeared and blessed him with new light, giving him the Śukla Yajur Veda — a purer, more radiant expression of Truth, drawn directly from the Sun. Even when all seems lost, Surya's grace brings fresh, divine knowledge to one who turns to him with sincerity."
@@ -448,6 +478,7 @@ const CHAPTERS = [
   {
     id:11,
     title:'Rama and the Aditya Hṛdayam \u2013 A Glimpse of Divine Surrender',
+    short:'Rama and the Aditya Hṛdayam',
     body:[
       "Even Rāma, the Pūrṇa Avatāra of Bhagavān, shows us the human condition — fatigue, discouragement, a sense of helplessness. On the battlefield, before facing Rāvaṇa, Rāma is tired, disheartened.",
       "At that moment, Sage Agastya appears and teaches him the Āditya Hṛdayam, a hymn of surrender to Surya."
@@ -556,6 +587,12 @@ function loadState(){
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 let state = loadState();
 
+function firstUnanswered(ch){
+  const answers = state.chapterAnswers[ch.id] || {};
+  const i = ch.questions.findIndex((_,qi)=>answers[qi]===undefined);
+  return i === -1 ? 0 : i;
+}
+
 function isChapterComplete(ch){
   const answers = state.chapterAnswers[ch.id] || {};
   return ch.questions.every((_,qi)=>answers[qi]!==undefined);
@@ -569,14 +606,23 @@ function setStageColor(hexColor){
 /* ============ SCREENS ============ */
 const stageEl = document.getElementById('stage');
 
+function hasProgress(){
+  return CHAPTERS.some(ch=>Object.keys(state.chapterAnswers[ch.id]||{}).length>0);
+}
+
 function showTitle(){
   setStageColor(COLOR_STOPS[0]);
   stageEl.innerHTML = `
     <div class="title-screen">
       <div class="sun-hero">${makeSunSVG(COLOR_STOPS[0], {rayCount:20})}</div>
       <h1 class="display">Surya Katha</h1>
+      <div class="credit-block">
+        <p class="credit-label">From the lecture of</p>
+        <p class="credit-name display">Vinay Varanasi</p>
+        <p class="credit-note">Every story, every connection, every śloka here is his telling.</p>
+      </div>
       <button class="intro-tap" id="enterBtn">
-        Vinay Varanasi in an enlightening talk tells us Surya Katha, with a striking episode from Krishna Katha, highlighting how the journey toward Surya began for a prominent figure.
+        Surya is the Pratyakṣa Bhagavān — the one form of God visible to everyone, every single day. Yet for all that daily darshan, how little we know of him. We see a glowing ball of fire. The Ṛṣis bowed for millennia. What did they perceive that we miss?
         <div class="intro-hint">Tap to begin</div>
       </button>
     </div>
@@ -590,17 +636,19 @@ function showIndex(){
   const completeCount = CHAPTERS.filter(isChapterComplete).length;
   const allComplete = completeCount === CHAPTERS.length;
   stageEl.innerHTML = `
+    <div class="index-screen">
     <button class="top-back" id="titleBtn">
       <span class="top-back-arrow">&larr;</span> Title
     </button>
+    ${hasProgress() ? `<button class="top-reset" id="resetBtn">Reset <span class="top-back-arrow">&#8634;</span></button>` : ''}
     <div class="index-header">
       <div class="sun-hero">${makeSunSVG(COLOR_STOPS[Math.floor(COLOR_STOPS.length/2)], {rayCount:16})}</div>
       <h1 class="display">Surya Katha</h1>
       <p class="index-progress">${completeCount} of ${CHAPTERS.length} chapters complete</p>
-      ${allComplete ? `<p class="index-complete-note neon-blink">You&rsquo;ve now experienced a summary of Vinay Varanasi&rsquo;s lecture on Surya Katha. Soon the next release &mdash; the meaning of the Āditya Hṛdayam.</p>` : ''}
+      ${allComplete ? `<p class="index-complete-note neon-blink">You have come to the end of Surya Katha as <strong>Vinay Varanasi</strong> tells it &mdash; his storytelling, his connections, his choice of every śloka. Soon the next release: the meaning of the Āditya Hṛdayam.</p>` : ''}
     </div>
     <div class="index-grid" id="indexGrid"></div>
-    <button class="reset-link" id="resetBtn">Reset progress</button>
+    </div>
   `;
   const grid = document.getElementById('indexGrid');
   CHAPTERS.forEach((ch,i)=>{
@@ -610,7 +658,7 @@ function showIndex(){
     cell.dataset.idx = i;
     cell.innerHTML = `
       <span class="cell-num">${i+1}</span>
-      <span class="cell-title">${ch.title}</span>
+      <span class="cell-title">${ch.short || ch.title}</span>
       ${complete?'<span class="cell-check">✓</span>':''}
     `;
     grid.appendChild(cell);
@@ -622,8 +670,9 @@ function showIndex(){
       window.scrollTo({top:0});
     });
   });
-  document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
   document.getElementById('titleBtn').addEventListener('click', showTitle);
+  const resetEl = document.getElementById('resetBtn');
+  if(resetEl) resetEl.addEventListener('click', showResetConfirm);
   window.scrollTo({top:0});
 }
 
@@ -665,6 +714,9 @@ function renderStoryPage(chapterIdx, ch, page){
     `<p>${ch.body[i]}</p>` + ((ch.list && ch.list.after===i) ? renderList(ch.list) : '')
   );
   stageEl.innerHTML = `
+    <div class="chapter-bar">
+      <button class="top-back" id="toIndexBtn"><span class="top-back-arrow">&larr;</span> Chapters</button>
+    </div>
     <p class="chapter-num">Chapter ${chapterIdx+1}</p>
     <h1 class="chapter-title display">${ch.title}</h1>
     <div class="card">
@@ -676,7 +728,6 @@ function renderStoryPage(chapterIdx, ch, page){
       <button class="nav-btn" id="backBtn">Back</button>
       <button class="nav-btn primary" id="nextBtn">${isLast ? 'Answer the questions' : 'Next page'}</button>
     </div>
-    <button class="reset-link" id="resetBtn">Reset progress</button>
   `;
   document.getElementById('backBtn').addEventListener('click', ()=>{
     if(page===0) showIndex();
@@ -684,11 +735,11 @@ function renderStoryPage(chapterIdx, ch, page){
     window.scrollTo({top:0, behavior:'smooth'});
   });
   document.getElementById('nextBtn').addEventListener('click', ()=>{
-    if(isLast) showChapter(chapterIdx, 'quiz', 0);
+    if(isLast) showChapter(chapterIdx, 'quiz', firstUnanswered(ch));
     else showChapter(chapterIdx, 'story', page+1);
     window.scrollTo({top:0, behavior:'smooth'});
   });
-  document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
+  document.getElementById('toIndexBtn').addEventListener('click', showIndex);
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -699,6 +750,10 @@ function renderQuizQuestion(chapterIdx, ch, answers, qi){
   const isLastQ = qi === ch.questions.length-1;
 
   stageEl.innerHTML = `
+    <div class="chapter-bar">
+      <button class="top-back" id="toIndexBtn"><span class="top-back-arrow">&larr;</span> Chapters</button>
+      <button class="top-back" id="toStoryBtn">Read the chapter</button>
+    </div>
     <p class="chapter-num">Chapter ${chapterIdx+1}</p>
     <h1 class="chapter-title display">${ch.title}</h1>
     <div class="quiz-block">
@@ -728,7 +783,6 @@ function renderQuizQuestion(chapterIdx, ch, answers, qi){
       <button class="nav-btn" id="backBtn">Back</button>
       <button class="nav-btn primary" id="nextBtn" ${answered?'':'disabled'}>${isLastQ ? 'Back to index' : 'Next question'}</button>
     </div>
-    <button class="reset-link" id="resetBtn">Reset progress</button>
   `;
 
   stageEl.querySelector('.options').querySelectorAll('.opt').forEach(btn=>{
@@ -752,7 +806,11 @@ function renderQuizQuestion(chapterIdx, ch, answers, qi){
     else showChapter(chapterIdx, 'quiz', qi+1);
     window.scrollTo({top:0, behavior:'smooth'});
   });
-  document.getElementById('resetBtn').addEventListener('click', showResetConfirm);
+  document.getElementById('toIndexBtn').addEventListener('click', showIndex);
+  document.getElementById('toStoryBtn').addEventListener('click', ()=>{
+    showChapter(chapterIdx, 'story', 0);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
